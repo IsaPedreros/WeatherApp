@@ -13,18 +13,22 @@
     </RouterLink>
 
     <v-container class="mx-8">
-      <v-text-field
-        v-model="searchQuery"
-        @input="getSearchResults"
+      <v-autocomplete
+        v-model:search="searchQuery"
+        @update:search="getSearchResults"
+        :items="cities"
         label="Buscar una ciudad"
+        :loading="loading"
         variant="underlined"
         clearable
         append-inner-icon="mdi-magnify"
+        menu-icon=""
         single-line
-      ></v-text-field>
+        hide-no-data
+      ></v-autocomplete>
 
       <!-- quizas con v-menu este configurado para que los elementos se superpongan al body (?) -->
-      <v-list
+      <!-- <v-list
         class="mt-1"
       >
         <v-list-item
@@ -33,7 +37,7 @@
         >
         {{ searchResult.place_name }}
         </v-list-item>
-      </v-list>
+      </v-list> -->
     </v-container>
 
     <v-btn 
@@ -89,6 +93,7 @@
   const searchQuery = ref("");
   const queryTimeout = ref(null);
   const mapboxSearchResults = ref(null);
+  const cities = ref([]);
 
   const getSearchResults = () => {
     clearTimeout(queryTimeout.value);
@@ -99,13 +104,16 @@
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchQuery.value}.json?access_token=${mapboxAPIKey}&types=place`
           );
           mapboxSearchResults.value = result.data.features;
+          cities.value = mapboxSearchResults.value.map(e => e.place_name);
           console.log(mapboxSearchResults.value);
+          console.log(cities.value);
         } catch (error) {
           console.error('Error fetching search results:', error);
         }
       return;
       } else {
         mapboxSearchResults.value = null;
+        cities.value = [];
       }
     }, 300);
   };
