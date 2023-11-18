@@ -18,26 +18,15 @@
         @update:search="getSearchResults"
         :items="cities"
         label="Buscar una ciudad"
-        :loading="loading"
         variant="underlined"
         clearable
         prepend-inner-icon="mdi-magnify"
         menu-icon=""
-        single-line
         hide-no-data
+        theme="dark"
+        single-line
+        @update:modelValue="previewCity(mapboxSearchResults)"
       ></v-autocomplete>
-
-      <!-- quizas con v-menu este configurado para que los elementos se superpongan al body (?) -->
-      <!-- <v-list
-        class="mt-1"
-      >
-        <v-list-item
-          v-for="searchResult in mapboxSearchResults"
-          :key="searchResult.id"
-        >
-        {{ searchResult.place_name }}
-        </v-list-item>
-      </v-list> -->
     </v-container>
 
     <v-btn 
@@ -94,6 +83,8 @@
   const queryTimeout = ref(null);
   const mapboxSearchResults = ref(null);
   const cities = ref([]);
+  const searchError = ref(null);
+  
 
   const getSearchResults = () => {
     clearTimeout(queryTimeout.value);
@@ -105,17 +96,22 @@
           );
           mapboxSearchResults.value = result.data.features;
           cities.value = mapboxSearchResults.value.map(e => e.place_name);
-          console.log(mapboxSearchResults.value);
-          console.log(cities.value);
+
         } catch (error) {
           console.error('Error fetching search results:', error);
+          searchError.value = true;
+          cities.value = ["Algo salió mal. Intentalo nuevamente."];
         }
       return;
       } else {
         mapboxSearchResults.value = null;
         cities.value = [];
       }
-    }, 300);
+    }, 500);
   };
 
+
+  const previewCity = (mapboxSearchResults) => {
+    console.log(mapboxSearchResults);
+  }
 </script>
