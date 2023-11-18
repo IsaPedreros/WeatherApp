@@ -21,7 +21,7 @@
         :loading="loading"
         variant="underlined"
         clearable
-        append-inner-icon="mdi-magnify"
+        prepend-inner-icon="mdi-magnify"
         menu-icon=""
         single-line
         hide-no-data
