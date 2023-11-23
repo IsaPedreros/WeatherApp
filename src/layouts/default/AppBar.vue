@@ -12,11 +12,18 @@
       </v-app-bar-title>
     </RouterLink>
 
+    <!-- hay que ver como con el return-object se pueden asignar correctamente valores y propiedades a resultados
+    Por algun motivo al hacer un map que solo copia el valor de .place_name si funciona,
+    pero si armo un objeto con place_name, y coordenadas respectivas, no funciona. Asique problema va por correcta asignacion de objeto a v-autocomplete    
+    No he querido meterme con cambiar el v-model:search pero quizas haya que hacerlo -->
     <v-container class="mx-8">
       <v-autocomplete
         v-model:search="searchQuery"
         @update:search="getSearchResults"
-        :items="cities"
+        @update:menu="previewCity(dataCities)"
+        return-object
+        :items="mapboxSearchResults"
+        item-title="place_name"
         label="Buscar una ciudad"
         variant="underlined"
         clearable
@@ -25,7 +32,6 @@
         hide-no-data
         theme="dark"
         single-line
-        @update:modelValue="previewCity(mapboxSearchResults)"
       ></v-autocomplete>
     </v-container>
 
@@ -79,11 +85,13 @@
   const dialog = ref(false);
 
   const mapboxAPIKey = "pk.eyJ1IjoiaXNhcGVkcmVyb3MiLCJhIjoiY2xvemgya2E0MDBudDJrczFqczB6dnJtaiJ9.ETqKr1Gv-vFyMIvFVSKn-w";
-  const searchQuery = ref("");
+  const searchQuery = ref('');
   const queryTimeout = ref(null);
-  const mapboxSearchResults = ref(null);
-  const cities = ref([]);
+  const mapboxSearchResults = ref([]);
+  const dataCities = ref([]);
   const searchError = ref(null);
+  const selectedCity = ref([]);
+
   
 
   const getSearchResults = () => {
@@ -95,23 +103,40 @@
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchQuery.value}.json?access_token=${mapboxAPIKey}&types=place`
           );
           mapboxSearchResults.value = result.data.features;
-          cities.value = mapboxSearchResults.value.map(e => e.place_name);
-
+          // filteredResults.value = mapboxSearchResults.value.filter(e => e.place_name.includes(searchQuery));
+          // console.log(filteredResults.value.place_name);
+          dataCities.value = mapboxSearchResults.value.map( e => ({
+            cityName: e.place_name,
+            coordX: e.center[0],
+            coordY: e.center[1],
+          }));
         } catch (error) {
           console.error('Error fetching search results:', error);
           searchError.value = true;
-          cities.value = ["Algo salió mal. Intentalo nuevamente."];
+          mapboxSearchResults.value.place_name = ["Algo salió mal. Intentalo nuevamente."];
         }
-      return;
+        return;
       } else {
-        mapboxSearchResults.value = null;
-        cities.value = [];
+        mapboxSearchResults.value = [];
+        dataCities.value = [];
       }
     }, 500);
   };
 
 
-  const previewCity = (mapboxSearchResults) => {
-    console.log(mapboxSearchResults);
+  const previewCity = (dataCities) => {
+    // Hay que lograr filtrar dentro de los resultados el que eligio el usuario, pensaba hacerlo con filter searchquery pero no esta funcionando, falta hacer un console.log de searchquery dentro de esta funcion para ver si es como pienso.
+    // hay que ordenar el proceso de filtrado entre esta funcion y la otra igual, que quede mas claro que hace cual funcion.
+    // al menos logre crear un nuevo objeto "dataCities", que extrae solo los datos utiles del objeto mapboxSearchResult, pero que quizas podria ejecutarse solo despues de filtrar los datos para no extraer datos inutiles (?)
+    console.log(dataCities);
+    if (dataCities.cityName) {
+      console.log("hay cityname");
+      selectedCity.value = dataCities.value.filter(e => e.cityName.includes(searchQuery));
+      console.log(selectedCity);
+    } else {
+      console.log("no hay datacities.cityname");
+    }
+    // const [city, state] = searchQuery.place_name.split(",");
+    // console.log(city,state);
   }
 </script>
