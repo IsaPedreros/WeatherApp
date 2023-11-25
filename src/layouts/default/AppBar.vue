@@ -20,7 +20,6 @@
       <v-autocomplete
         v-model:search="searchQuery"
         @update:search="getSearchResults"
-        @update:menu="previewCity(dataCities)"
         return-object
         :items="mapboxSearchResults"
         item-title="place_name"
@@ -78,9 +77,10 @@
 </template>
 
 <script setup>
-  import { RouterLink } from 'vue-router';
+  import { RouterLink, useRouter } from 'vue-router';
   import { ref } from 'vue';
   import axios from "axios";
+import CityView from '@/views/CityView.vue';
 
   const dialog = ref(false);
 
@@ -88,13 +88,11 @@
   const searchQuery = ref('');
   const queryTimeout = ref(null);
   const mapboxSearchResults = ref([]);
-  const dataCities = ref([]);
-  const searchError = ref(null);
   const selectedCity = ref([]);
-
+  const searchError = ref(null);
   
 
-  const getSearchResults = () => {
+  const getSearchResults = async () => {
     clearTimeout(queryTimeout.value);
     queryTimeout.value = setTimeout(async () => {
       if (searchQuery.value !== '') {
@@ -103,40 +101,53 @@
             `https://api.mapbox.com/geocoding/v5/mapbox.places/${searchQuery.value}.json?access_token=${mapboxAPIKey}&types=place`
           );
           mapboxSearchResults.value = result.data.features;
-          // filteredResults.value = mapboxSearchResults.value.filter(e => e.place_name.includes(searchQuery));
-          // console.log(filteredResults.value.place_name);
-          dataCities.value = mapboxSearchResults.value.map( e => ({
-            cityName: e.place_name,
-            coordX: e.center[0],
-            coordY: e.center[1],
-          }));
+          selectedCity.value = mapboxSearchResults.value
+            .filter(e => e.place_name === searchQuery.value)
+            .map(e => {
+              const [city, state] = e.place_name.split(", ");
+              return {
+                city,
+                state,
+                coordX: e.center[0],
+                coordY: e.center[1],
+              };
+            });
+          await previewCity(selectedCity.value);
         } catch (error) {
           console.error('Error fetching search results:', error);
           searchError.value = true;
-          mapboxSearchResults.value.place_name = ["Algo salió mal. Intentalo nuevamente."];
         }
         return;
       } else {
         mapboxSearchResults.value = [];
-        dataCities.value = [];
+        selectedCity.value = [];
+        console.log("valores reseteados");
       }
     }, 500);
   };
 
 
-  const previewCity = (dataCities) => {
-    // Hay que lograr filtrar dentro de los resultados el que eligio el usuario, pensaba hacerlo con filter searchquery pero no esta funcionando, falta hacer un console.log de searchquery dentro de esta funcion para ver si es como pienso.
-    // hay que ordenar el proceso de filtrado entre esta funcion y la otra igual, que quede mas claro que hace cual funcion.
-    // al menos logre crear un nuevo objeto "dataCities", que extrae solo los datos utiles del objeto mapboxSearchResult, pero que quizas podria ejecutarse solo despues de filtrar los datos para no extraer datos inutiles (?)
-    console.log(dataCities);
-    if (dataCities.cityName) {
-      console.log("hay cityname");
-      selectedCity.value = dataCities.value.filter(e => e.cityName.includes(searchQuery));
+  const router = useRouter();
+
+  const previewCity = async (selectedCity) => {
+    return new Promise(resolve => {
+      console.log("previewCity -- ");
       console.log(selectedCity);
-    } else {
-      console.log("no hay datacities.cityname");
-    }
-    // const [city, state] = searchQuery.place_name.split(",");
-    // console.log(city,state);
-  }
+  
+      // 1° se hace una asignacion a otra variable ya que selected city viene con reactividad de vue3 Proxy(Array), que dificultan la asignacion directa de sus propiedades.
+      const datosCity = selectedCity[0]
+  
+      router.push({
+        name: "cityView",
+        params: { state: datosCity.state, city: datosCity.city},
+        query: {
+          lat: datosCity.coordX,
+          lng: datosCity.coordY,
+          preview: true,
+        }
+      });
+
+      resolve();
+    });
+  };
 </script>
