@@ -119,10 +119,10 @@ import CityView from '@/views/CityView.vue';
         }
         return;
       } else {
-        mapboxSearchResults.value = [];
-        selectedCity.value = [];
-        console.log("valores reseteados");
-      }
+          mapboxSearchResults.value = [];
+          selectedCity.value = [];
+          console.log("valores reseteados");
+        }
     }, 500);
   };
 
@@ -141,8 +141,8 @@ import CityView from '@/views/CityView.vue';
         name: "cityView",
         params: { state: datosCity.state, city: datosCity.city},
         query: {
-          lat: datosCity.coordX,
-          lng: datosCity.coordY,
+          lat: datosCity.coordY,
+          lon: datosCity.coordX,
           preview: true,
         }
       });
