@@ -6,7 +6,7 @@
     style="text-decoration: none; color: inherit;"
     >
       <v-app-bar-title class="text-white">
-        <v-icon icon="mdi-weather-partly-cloudy" />
+        <v-icon @click="resetValues" icon="mdi-weather-partly-cloudy" />
         <span class="font-weight-light">Weather</span>
         <span>App</span>
       </v-app-bar-title>
@@ -112,17 +112,18 @@ import CityView from '@/views/CityView.vue';
                 coordY: e.center[1],
               };
             });
-          await previewCity(selectedCity.value);
+          // se llama previewCity solo si hay valores asignados a selectedCity
+          if (selectedCity.value && selectedCity.value.length > 0) {
+            await previewCity(selectedCity.value);
+          }
         } catch (error) {
           console.error('Error fetching search results:', error);
           searchError.value = true;
         }
         return;
       } else {
-          mapboxSearchResults.value = [];
-          selectedCity.value = [];
-          console.log("valores reseteados");
-        }
+          resetValues();
+        };
     }, 500);
   };
 
@@ -150,4 +151,12 @@ import CityView from '@/views/CityView.vue';
       resolve();
     });
   };
+
+  const resetValues = () => {
+    mapboxSearchResults.value = [];
+    selectedCity.value = [];
+    searchQuery.value = ''; // no se esta reseteando el valor de searchQuery al hacer click en banner de inicio.
+    console.log("resetValues()--");
+  };
+
 </script>

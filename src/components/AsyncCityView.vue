@@ -1,7 +1,58 @@
 <template>
-    <div>
+    <div class="items-center">
+        <div class="text-center">
+            <v-alert type="info" variant="tonal" class="text-subtitle-2" closable>Estás viendo el tiempo para {{ route.params.city }}. Si deseas agregar esta ciudad al inicio presiona el signo más (+) de arriba. </v-alert>
+        </div>
+        <div class="text-center py-9">
+            <p class="text-h5 mb-2"> {{ route.params.city }}</p>
+            <p class="text-body-2 mb-12">
+                {{ 
+                    new Date(weatherData.currentTime).toLocaleDateString(
+                        'es-ES',
+                        {
+                            weekday: "short",
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                        }
+                    )
+                }}
+                {{ 
+                    new Date(weatherData.currentTime).toLocaleTimeString(
+                        'es-ES',
+                        {
+                            timeStyle: "short",
+                        }
+                    )
+                }}
+            </p>
+            <p class="text-h2 mb-9">
+                {{ Math.round(weatherData.current.temp) }}&deg; C
+            </p>
+            <p class="mb-2">
+                Se sienten como 
+                {{ Math.round(weatherData.current.feels_like) }}&deg; C
+            </p>
+            <p class="text-capitalize">
+                {{ weatherData.current.weather[0].description }}
+            </p>
+            <v-img
+                class="mx-auto mb-12"
+                width="150"
+                :src="`https://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@4x.png`"
+            >
+            </v-img>
 
+            <v-divider></v-divider>
+
+            <!-- Clima diario -->
+            <div class="py-12">
+                <div class="mx-8">Clima por hora</div>
+            </div>
+
+        </div>
     </div>
+
 </template>
 
 <script setup>
@@ -9,15 +60,14 @@
     import { useRoute } from 'vue-router';
 
     const route = useRoute();
-
     const getWeatherData = async () => {
         try {
-            const weatherData = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${route.query.coordX}&lon=${route.query.coordY}&exclude={part}&appid=8242333c05f55cc366a5ad0e8a1f189e`);
+            const weatherData = await axios.get(`https://api.openweathermap.org/data/3.0/onecall?lat=${route.query.lat}&lon=${route.query.lon}&units=metric&lang=es&appid=8242333c05f55cc366a5ad0e8a1f189e`);
 
             //calculo de hora y fecha actual
             const localOffset = new Date().getTimezoneOffset() * 60000;
             const utc = weatherData.data.current.dt * 1000 + localOffset;
-            weatherData.date.currentTime = utc + 1000 * weatherData.data.timezone_offset;
+            weatherData.data.currentTime = utc + 1000 * weatherData.data.timezone_offset;
 
             //calculo de time offset por hora
             weatherData.data.hourly.forEach((hour) => {
@@ -26,7 +76,7 @@
                     utc + 1000 * weatherData.data.timezone_offset;
             });
 
-            return weatherData;
+            return weatherData.data;
         } catch(err) {
             console.log(err);
         }
