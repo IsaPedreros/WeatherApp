@@ -137,16 +137,18 @@ import CityView from '@/views/CityView.vue';
     // 1° se hace una asignacion a otra variable ya que selected city viene con reactividad de vue3 Proxy(Array), que dificultan la asignacion directa de sus propiedades.
     const datosCity = selectedCity[0]
 
-    router.push({
-      name: "cityView",
-      params: { state: datosCity.state, city: datosCity.city},
-      query: {
-        lat: datosCity.coordY,
-        lon: datosCity.coordX,
-        preview: true,
-      }
-    });
-
+    try {
+      await router.push({
+        name: "cityView",
+        params: { state: datosCity.state, city: datosCity.city},
+        query: {
+          lat: datosCity.coordY,
+          lon: datosCity.coordX,
+          preview: true,
+        },
+      });
+      console.log("router push --");
+    } catch (err) { console.log("Error con el router",err)};
   };
 
   const resetValues = () => {

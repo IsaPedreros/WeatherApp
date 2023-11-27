@@ -44,31 +44,68 @@
             </v-img>
 
             <v-divider></v-divider>
-
-            <!-- Clima diario -->
-            <div class="py-12">
-                <div class="mx-8">Clima por hora</div>
-            </div>
-            <v-container>
-                <v-row style="display: flex; overflow-x: auto; white-space: nowrap;">
-                    <v-col 
-                        v-for="hourData in weatherData.hourly" 
-                        :key="hourData.dt" 
-                        class="text-subtitle-2"
+        </div>
+        <!-- Clima diario -->
+        <div class="py-6 mx-auto text-h6 text-center">
+            Próximas horas:
+        </div>
+        <v-sheet class="mx-auto text-center bg-primary">
+            <v-slide-group 
+                class="pa-3"
+                show-arrows
+            >
+                <v-slide-group-item 
+                    v-for="hourData in weatherData.hourly" 
+                    :key="hourData.dt" 
+                >
+                    <v-container
+                        class="ma-4 text-subtitle-2 text-wrap"
                     >
                         <p>
-                        {{ 
-                            new Date(hourData.currentTime).toLocaleTimeString(
-                                'en-us', 
-                                {
-                                    hour: "numeric",
-                                })
-                        }}
+                            {{ 
+                                new Date(hourData.currentTime).toLocaleTimeString(
+                                    'en-us', 
+                                    {
+                                        hour: "numeric",
+                                    })
+                            }}
                         </p>
-                    </v-col>
-                </v-row>
-            </v-container>
+                        <img 
+                            class="w-auto"
+                            :src="`https://openweathermap.org/img/wn/${hourData.weather[0].icon}@2x.png`" 
+                            
+                        >
+                        <p>
+                            {{ Math.round(hourData.temp) }}&deg; C
+                        </p>
+                    </v-container>
+                </v-slide-group-item>
+            </v-slide-group>
+        </v-sheet>
+
+        <v-divider></v-divider>
+        <!-- Clima Semana -->
+        <div class="py-12 mx-8 text-h6 text-center">
+            Pronóstico de la semana:
         </div>
+        <v-sheet class="mx-auto text-center bg-primary">
+            <div
+                v-for="day in weatherData.daily"
+                :key="day.dt"
+                class="d-flex flex-row"
+            >
+                <v-container class="d-inline">
+                    {{ new Date(day.dt * 1000).toLocaleDateString(
+                        'es-ES',
+                            {
+                                weekday: 'long',
+                            }
+                        )  
+                    }}
+                </v-container>
+            </div>
+        </v-sheet>
+
     </div>
 
 </template>
