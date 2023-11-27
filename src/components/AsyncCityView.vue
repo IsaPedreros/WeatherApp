@@ -49,7 +49,25 @@
             <div class="py-12">
                 <div class="mx-8">Clima por hora</div>
             </div>
-
+            <v-container>
+                <v-row style="display: flex; overflow-x: auto; white-space: nowrap;">
+                    <v-col 
+                        v-for="hourData in weatherData.hourly" 
+                        :key="hourData.dt" 
+                        class="text-subtitle-2"
+                    >
+                        <p>
+                        {{ 
+                            new Date(hourData.currentTime).toLocaleTimeString(
+                                'en-us', 
+                                {
+                                    hour: "numeric",
+                                })
+                        }}
+                        </p>
+                    </v-col>
+                </v-row>
+            </v-container>
         </div>
     </div>
 
