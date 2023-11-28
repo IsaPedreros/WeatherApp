@@ -72,15 +72,16 @@
         </v-card>
     </v-dialog>
 
-    <v-btn icon="mdi-plus"></v-btn>
+    <v-btn icon="mdi-plus" @click="addCity" v-if="route.query.preview"></v-btn>
   </v-app-bar>
 </template>
 
 <script setup>
-  import { RouterLink, useRouter } from 'vue-router';
+  import { RouterLink, useRouter, useRoute } from 'vue-router';
   import { ref } from 'vue';
   import axios from "axios";
-import CityView from '@/views/CityView.vue';
+  import { uid } from "uid";
+  import CityView from '@/views/CityView.vue';
 
   const dialog = ref(false);
 
@@ -90,7 +91,7 @@ import CityView from '@/views/CityView.vue';
   const mapboxSearchResults = ref([]);
   const selectedCity = ref([]);
   const searchError = ref(null);
-  
+  const savedCities = ref([]);
 
   const getSearchResults = async () => {
     clearTimeout(queryTimeout.value);
@@ -129,6 +130,7 @@ import CityView from '@/views/CityView.vue';
 
 
   const router = useRouter();
+  const route = useRoute();
 
   const previewCity = async (selectedCity) => {
     console.log("previewCity -- ");
@@ -156,6 +158,29 @@ import CityView from '@/views/CityView.vue';
     selectedCity.value = [];
     searchQuery.value = ''; // no se esta reseteando el valor de searchQuery al hacer click en banner de inicio.
     console.log("resetValues()--");
+  };
+
+  const addCity = () => {
+    if (localStorage.getItem('savedCities')){
+      savedCities.value = JSON.parse(localStorage.getItem('savedCities'));
+    }
+
+    const locationObject = {
+      id: uid(),
+      state: route.params.state,
+      city: route.params.city,
+      coords: {
+        lat: route.query.lat,
+        lon: route.query.lon,
+      },
+    };
+
+    savedCities.value.push(locationObject);
+    localStorage.setItem('savedCities', JSON.stringify(savedCities.value));
+
+    let query = Object.assign({}, route.query);
+    delete query.preview;
+    router.replace({ query });
   };
 
 </script>
