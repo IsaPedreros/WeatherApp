@@ -1,5 +1,5 @@
 <template>
-    <div class="items-center">
+    <div>
         <div class="text-center">
             <v-alert type="info" variant="tonal" class="text-subtitle-2" closable>Estás viendo el tiempo para {{ route.params.city }}. Si deseas agregar esta ciudad al inicio presiona el signo más (+) de arriba. </v-alert>
         </div>
@@ -45,14 +45,16 @@
 
             <v-divider></v-divider>
         </div>
+
         <!-- Clima diario -->
-        <div class="py-6 mx-auto text-h6 text-center">
+        <div class="py-6 mx-16 text-h6 text-left">
             Próximas horas:
         </div>
-        <v-sheet class="mx-auto text-center bg-primary">
+        <v-sheet class="px-12 mx-auto text-center bg-primary">
             <v-slide-group 
                 class="pa-3"
                 show-arrows
+                center-active
             >
                 <v-slide-group-item 
                     v-for="hourData in weatherData.hourly" 
@@ -71,7 +73,7 @@
                             }}
                         </p>
                         <img 
-                            class="w-auto"
+                            class="flex"
                             :src="`https://openweathermap.org/img/wn/${hourData.weather[0].icon}@2x.png`" 
                             
                         >
@@ -85,16 +87,17 @@
 
         <v-divider></v-divider>
         <!-- Clima Semana -->
-        <div class="py-12 mx-8 text-h6 text-center">
+        <div class="py-12 mx-16 text-h6">
             Pronóstico de la semana:
         </div>
-        <v-sheet class="mx-auto text-center bg-primary">
+        <v-sheet class="mx-12 bg-primary">
             <div
                 v-for="day in weatherData.daily"
                 :key="day.dt"
-                class="d-flex flex-row"
+                class="d-flex"
             >
-                <v-container class="d-inline">
+                
+                <v-container class="text-capitalize text-left">
                     {{ new Date(day.dt * 1000).toLocaleDateString(
                         'es-ES',
                             {
@@ -103,7 +106,20 @@
                         )  
                     }}
                 </v-container>
+                <v-container class="justify-space-evenly"> 
+                    <v-img
+                        width="50px"
+                        height="50px"
+                        :src="`https://openweathermap.org/img/wn/${day.weather[0].icon}@2x.png`" 
+                    >
+                    </v-img>
+                </v-container>
+                <v-container class="text-right"> 
+                    Máxima: {{ Math.round(day.temp.max) }} &deg; C
+                    - Mínima: {{ Math.round(day.temp.min) }} &deg; C
+                </v-container>
             </div>
+            <v-divider></v-divider>
         </v-sheet>
 
     </div>
