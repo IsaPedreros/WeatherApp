@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="text-center">
-            <v-alert type="info" variant="tonal" class="text-subtitle-2" closable>Estás viendo el tiempo para {{ route.params.city }}. Si deseas agregar esta ciudad al inicio presiona el signo más (+) de arriba. </v-alert>
+            <v-alert v-if="route.query.preview" type="info" variant="tonal" class="text-subtitle-2" closable>Estás viendo el tiempo para {{ route.params.city }}. Si deseas agregar esta ciudad al inicio presiona el signo más (+) de arriba. </v-alert>
         </div>
         <div class="text-center py-9">
             <p class="text-h5 mb-2"> {{ route.params.city }}</p>
