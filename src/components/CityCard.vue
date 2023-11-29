@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-container>
-            <v-sheet class="bg-secondary rounded d-flex">
+            <v-card class="bg-secondary rounded d-flex" hover>
                 <v-container class="text-left">
                     <v-card-title class="text-h6">
                         {{ city.city }}
@@ -19,7 +19,7 @@
                         {{ Math.round(city.weather.main.temp_min) }}&deg;
                     </v-card-text>
                 </v-container>
-            </v-sheet>
+            </v-card>
         </v-container>
     </div>
 </template>
