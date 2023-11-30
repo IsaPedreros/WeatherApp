@@ -12,12 +12,10 @@
       </v-app-bar-title>
     </RouterLink>
 
-    <!-- hay que ver como con el return-object se pueden asignar correctamente valores y propiedades a resultados
-    Por algun motivo al hacer un map que solo copia el valor de .place_name si funciona,
-    pero si armo un objeto con place_name, y coordenadas respectivas, no funciona. Asique problema va por correcta asignacion de objeto a v-autocomplete    
-    No he querido meterme con cambiar el v-model:search pero quizas haya que hacerlo -->
+
     <v-container class="mx-8">
       <v-autocomplete
+        v-model="searchfield"
         v-model:search="searchQuery"
         @update:search="getSearchResults"
         return-object
@@ -81,7 +79,6 @@
   import { ref } from 'vue';
   import axios from "axios";
   import { uid } from "uid";
-  import CityView from '@/views/CityView.vue';
 
   const dialog = ref(false);
 
@@ -92,6 +89,8 @@
   const selectedCity = ref([]);
   const searchError = ref(null);
   const savedCities = ref([]);
+  const searchfield = ref('');
+
 
   const getSearchResults = async () => {
     clearTimeout(queryTimeout.value);
@@ -124,10 +123,19 @@
         return;
       } else {
           resetValues();
+          console.log("searchQuery es '' --");
         };
     }, 500);
   };
 
+
+  const resetValues = () => {
+    console.log("resetValues()--");
+    mapboxSearchResults.value = [];
+    selectedCity.value = [];
+    searchfield.value = '';
+    searchQuery.value = '';
+  };
 
   const router = useRouter();
   const route = useRoute();
@@ -153,12 +161,7 @@
     } catch (err) { console.log("Error con el router",err)};
   };
 
-  const resetValues = () => {
-    mapboxSearchResults.value = [];
-    selectedCity.value = [];
-    searchQuery.value = ''; // no se esta reseteando el valor de searchQuery al hacer click en banner de inicio.
-    console.log("resetValues()--");
-  };
+
 
   const addCity = () => {
     if (localStorage.getItem('savedCities')){
